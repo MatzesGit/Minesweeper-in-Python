@@ -20,3 +20,5 @@ Version 0.1
 
 The game is fully playable but only one size field is currenly available to use.
 If you want to change the number of mines, your can do this inside minesweeper.py - mines_no
+
+next steps -  will be adding a menu for changing parameters
