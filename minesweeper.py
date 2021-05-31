@@ -1,6 +1,6 @@
 import os, sys # init lib - used to call all other - don't change
 # #################################################################
-# Minesweeper Game - v0.1 - python 3.9.5
+# Minesweeper Game - v0.11 - python 3.9.5
 #
 # 2021 by Mathias Stritzke
 # #################################################################
@@ -37,10 +37,11 @@ image_folder = (path + "\images")
 # #################################################################
 try:
     # set game parameter
-    mines_no = 25
-    grid_size = 15 # number x number
+    mines_no = 30
+    grid_size_x = 20 # colums
+    grid_size_y = 20 # rows
 
-    Application_Show.parameter(mines_no, grid_size, image_folder)
+    Application_Show.parameter(mines_no, grid_size_x, grid_size_y, image_folder)
     Application_Show()
 except Exception as ex:
     print(str(ex))

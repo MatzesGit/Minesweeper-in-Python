@@ -5,7 +5,8 @@ from plugin import *
 # #################################################################
 # define global variables
 mines_no = 0
-grid_size = 0 # number x number
+grid_size_x = 0 # colums
+grid_size_y = 0
 game_state = 0 # 1 = lost
 define_kind_of_field = [0 for i in range(1000)] # Array max 1000 entrys predefined 
 # -1 = bomb,  + 1, + 2, + 3 -> neighbour fields of mines
@@ -18,23 +19,24 @@ class Program_Code:
     # set randomly mines on the field
     def create_mines():
         global mines_no
-        global grid_size
+        global grid_size_x
+        global grid_size_y
         global define_kind_of_field
 
         # reset all fields after restart
-        for i in range(grid_size * grid_size):
+        for i in range(grid_size_x * grid_size_y):
             define_kind_of_field[i] = 0
 
         count = 0
         i = 1
         while count < mines_no:
             # repeat the this until all mines will be randomly set
-            if i > (grid_size * grid_size):
+            if i > (grid_size_x * grid_size_y):
                 i = 1
             else:
                 i = i + 1
             # Random number from all possible grid positions 
-            val = random.randint(0, grid_size*grid_size-1)
+            val = random.randint(0, (grid_size_x*grid_size_x)-1)
 
             # Place the mine, if it doesn't already have one
             if define_kind_of_field[i] != -1 and define_kind_of_field[i] == val:
@@ -43,35 +45,36 @@ class Program_Code:
 
     # check mine and increase number for neighbour fields if valid 
     def check_neighbours():
-        global grid_size
+        global grid_size_x
+        global grid_size_y
         global define_kind_of_field
-        for y in range(0, grid_size, 1):
-            for x in range (1, grid_size + 1, 1):
-                if define_kind_of_field[(x + (y * grid_size))] == -1:
+        for y in range(0, grid_size_y, 1):
+            for x in range (1, grid_size_x + 1, 1):
+                if define_kind_of_field[(x + (y * grid_size_x))] == -1:
                     #check left
-                    if x > 1 and define_kind_of_field[(x - 1  + (y * grid_size))] != -1:
-                        define_kind_of_field[(x - 1  + (y * grid_size))] = define_kind_of_field[(x - 1 + (y * grid_size))] + 1
+                    if x > 1 and define_kind_of_field[(x - 1  + (y * grid_size_x))] != -1:
+                        define_kind_of_field[(x - 1  + (y * grid_size_x))] = define_kind_of_field[(x - 1 + (y * grid_size_x))] + 1
                     #check right
-                    if x < grid_size and define_kind_of_field[(x + 1 + (y * grid_size))] != -1:
-                        define_kind_of_field[(x + 1 + (y * grid_size))] = define_kind_of_field[(x + 1 + (y * grid_size))] + 1
+                    if x < grid_size_x and define_kind_of_field[(x + 1 + (y * grid_size_x))] != -1:
+                        define_kind_of_field[(x + 1 + (y * grid_size_x))] = define_kind_of_field[(x + 1 + (y * grid_size_x))] + 1
                     #top
-                    if y > 0 and define_kind_of_field[(x + ((y - 1)  * grid_size))] != -1:
-                        define_kind_of_field[(x + ((y - 1)  * grid_size))] = define_kind_of_field[(x + ((y - 1) * grid_size))] + 1
+                    if y > 0 and define_kind_of_field[(x + ((y - 1)  * grid_size_x))] != -1:
+                        define_kind_of_field[(x + ((y - 1)  * grid_size_x))] = define_kind_of_field[(x + ((y - 1) * grid_size_x))] + 1
                     #top-left
-                    if y > 0 and x > 1 and define_kind_of_field[(x - 1 + ((y - 1)  * grid_size))] != -1:
-                        define_kind_of_field[(x - 1 + ((y - 1)  * grid_size))] = define_kind_of_field[(x - 1 + ((y - 1) * grid_size))] + 1
+                    if y > 0 and x > 1 and define_kind_of_field[(x - 1 + ((y - 1)  * grid_size_x))] != -1:
+                        define_kind_of_field[(x - 1 + ((y - 1)  * grid_size_x))] = define_kind_of_field[(x - 1 + ((y - 1) * grid_size_x))] + 1
                     #top-right
-                    if y > 0 and x < grid_size and define_kind_of_field[(x + 1 + ((y - 1)  * grid_size))] != -1:
-                        define_kind_of_field[(x + 1 + ((y - 1)  * grid_size))] = define_kind_of_field[(x + 1 + ((y - 1) * grid_size))] + 1
+                    if y > 0 and x < grid_size_x and define_kind_of_field[(x + 1 + ((y - 1)  * grid_size_x))] != -1:
+                        define_kind_of_field[(x + 1 + ((y - 1)  * grid_size_x))] = define_kind_of_field[(x + 1 + ((y - 1) * grid_size_x))] + 1
                     #down
-                    if y < (grid_size - 1) and define_kind_of_field[x + ((y + 1)  * grid_size)] != -1:
-                        define_kind_of_field[(x + ((y + 1)  * grid_size))] = define_kind_of_field[(x + ((y + 1) * grid_size))] + 1
+                    if y < (grid_size_y - 1) and define_kind_of_field[x + ((y + 1)  * grid_size_x)] != -1:
+                        define_kind_of_field[(x + ((y + 1)  * grid_size_x))] = define_kind_of_field[(x + ((y + 1) * grid_size_x))] + 1
                     #down-left
-                    if y < (grid_size - 1) and x > 1 and define_kind_of_field[(x - 1 + ((y + 1)  * grid_size))] != -1:
-                        define_kind_of_field[(x - 1 + ((y + 1)  * grid_size))] = define_kind_of_field[(x - 1 + ((y + 1)  * grid_size))] + 1
+                    if y < (grid_size_y - 1) and x > 1 and define_kind_of_field[(x - 1 + ((y + 1)  * grid_size_x))] != -1:
+                        define_kind_of_field[(x - 1 + ((y + 1)  * grid_size_x))] = define_kind_of_field[(x - 1 + ((y + 1)  * grid_size_x))] + 1
                     #down-right
-                    if y < (grid_size - 1) and x < grid_size and define_kind_of_field[(x + 1 + ((y + 1)  * grid_size))] != -1:
-                        define_kind_of_field[(x + 1 + ((y + 1)  * grid_size))] = define_kind_of_field[(x + 1 + ((y + 1)  * grid_size))] + 1
+                    if y < (grid_size_y - 1) and x < grid_size_x and define_kind_of_field[(x + 1 + ((y + 1)  * grid_size_x))] != -1:
+                        define_kind_of_field[(x + 1 + ((y + 1)  * grid_size_x))] = define_kind_of_field[(x + 1 + ((y + 1)  * grid_size_x))] + 1
 
 # #################################################################
 # Class - Create playground with tkinter
@@ -81,13 +84,15 @@ class Application(tk.Frame, Program_Code): # Extend class Program_Code
     # Frame inside the Application - for better positioning
     def control_area(self):
         self.frame = tk.Frame(self)
-        self.frame.config(width = 390, height = 530)
+        self.frame.config(width = ((grid_size_x * 25) + 15), height = ((grid_size_y * 25) + 145))
         self.frame.pack(padx=0, pady=5, side="left")
 
     # Frame - Area with mines
     def game_area(self):
+        global grid_size_x
+        global grid_size_y
         self.subframe = tk.Frame(self)
-        self.subframe.config(width = 380, height = 382)
+        self.subframe.config(width = ((grid_size_x * 25) + 5), height = ((grid_size_y * 25) + 7))
         self.subframe.place(x=5, y=55)
         self.subframe["bg"] = "#808880"
 
@@ -98,7 +103,7 @@ class Application(tk.Frame, Program_Code): # Extend class Program_Code
         self.new_game["fg"]="black"
         self.new_game["text"] = "NEW GAME"
         self.new_game.config(width = 10, height = 2)
-        self.new_game.place(x=110, y=470) 
+        self.new_game.place(x = (((grid_size_x * 25) / 2) - 80), y = ((grid_size_y * 25) + 70)) 
         self.new_game["command"] = self.create_new
 
     # Button - Game close button
@@ -106,20 +111,21 @@ class Application(tk.Frame, Program_Code): # Extend class Program_Code
         self.quit = tk.Button(self, text="QUIT", bg="#c7cbcb", fg="red",
                               command=self.master.destroy)
         self.quit.config(width = 10, height = 2)                     
-        self.quit.place(x=198, y=470)
+        self.quit.place(x = (((grid_size_x * 25) / 2) + 10), y = ((grid_size_y * 25) + 70))
 
     # Button - Create Play Buttons according to class Program_Code
     def mine_fields(self, bomb_image, bomb_image_exploded):
-        global grid_size
+        global grid_size_x
+        global grid_size_y
         global number
         global define_kind_of_field
         global game_state
         Number = 1
         Program_Code.create_mines()
         Program_Code.check_neighbours()
-        self.game_button =  [tk.Button(self) for n in range(256)]
-        for y in range(58, 58 + (grid_size * 25), 25):
-            for x in range (8, 8 + (grid_size * 25), 25):
+        self.game_button =  [tk.Button(self) for n in range((grid_size_x * grid_size_y) + grid_size_y)]
+        for y in range(58, 58 + (grid_size_y * 25), 25):
+            for x in range (8, 8 + (grid_size_x * 25), 25):
                 self.game_button[Number] = tk.Button(self)
                 self.game_button[Number]["bg"]="#c7cbcb"
                 self.game_button[Number]["fg"]="#c7cbcb"
@@ -134,18 +140,20 @@ class Application(tk.Frame, Program_Code): # Extend class Program_Code
     # Label - simple information label above the game frame 
     # - call from def check_for_all_bombs_marked and def change_button_state_click
     def information_text(self, text):
+        global grid_size_x
         self.label = tk.Label(self)
         self.label.config(font=("Arial", 15))
         self.label.config(anchor="center")
-        self.label.place(x = 50, y = 10, width = 300, height = 30) 
+        self.label.place(x = (((grid_size_x / 2) * 25) -150), y = 13, width = 300, height = 30) 
         self.label["text"] = str(text)
 
     # Funktion - New Game - call from def button_new
     def create_new(self):
-        global grid_size
+        global grid_size_x
+        global grid_size_y
         global game_state
         self.information_text("")
-        for n in range((grid_size * grid_size) + 1):
+        for n in range((grid_size_x * grid_size_y) + 1):
             self.game_button[n]["bg"]="#c7cbcb"
             self.game_button[n]["fg"]="#c7cbcb"
             self.game_button[n]["text"]=""
@@ -199,7 +207,8 @@ class Application(tk.Frame, Program_Code): # Extend class Program_Code
     # - self recall funktion
     # - this funktion will every time start to check in all directions as long as the field is zero
     def check_neighbours(self, Number):
-        global grid_size
+        global grid_size_x
+        global grid_size_y
         global define_kind_of_field
         button_state = self.game_button[Number]["relief"]
         if button_state != "sunken":
@@ -211,48 +220,49 @@ class Application(tk.Frame, Program_Code): # Extend class Program_Code
             self.game_button[Number]["text"]= str(define_kind_of_field[Number])
             self.game_button[Number]["relief"]="sunken"
             self.game_button[Number]["command"] = lambda Number = Number: self.change_button_state(Number)
-            if define_kind_of_field[Number] == 0 and Number <= (grid_size * grid_size):
+            if define_kind_of_field[Number] == 0 and Number <= (grid_size_x * grid_size_y):
                 # recall this funktion self in all diections from the current field
 
                 # define row position
                 i = 1
                 row = 0 # array pos
-                while Number > grid_size * i:
+                while Number > grid_size_x * i:
                     i   = i   + 1
                     row = row + 1                
                 # check left
-                if Number - 1 - (row * grid_size) > 0:
+                if Number - 1 - (row * grid_size_x) > 0:
                     self.check_neighbours(Number - 1)
                 # check right
-                if Number - (row * grid_size) < grid_size: 
+                if Number - (row * grid_size_x) < grid_size_x: 
                     self.check_neighbours(Number + 1)
                 # check top
                 if row - 1 > -1:
-                    self.check_neighbours(Number - grid_size)
+                    self.check_neighbours(Number - grid_size_x)
                 # check top-left
                 if row - 1 > -1:
-                    if Number - 1 - (row * grid_size) > 0:
-                        self.check_neighbours(Number - 1 - grid_size)
+                    if Number - 1 - (row * grid_size_x) > 0:
+                        self.check_neighbours(Number - 1 - grid_size_x)
                 # check top-right
                 if row - 1 > -1:
-                    if Number - (row * grid_size) < grid_size:
-                        self.check_neighbours(Number + 1 - grid_size)                
+                    if Number - (row * grid_size_x) < grid_size_x:
+                        self.check_neighbours(Number + 1 - grid_size_x)                
                 # check down
-                if row < grid_size:
-                    self.check_neighbours(Number + grid_size)
+                if row < grid_size_y:
+                    self.check_neighbours(Number + grid_size_x)
                 # check down-left
-                if row < grid_size:
-                    if Number - 1 - (row * grid_size) > 0:
-                        self.check_neighbours(Number - 1 + grid_size)
+                if row < grid_size_y:
+                    if Number - 1 - (row * grid_size_x) > 0:
+                        self.check_neighbours(Number - 1 + grid_size_x)
                 # check down-right
-                if row < grid_size:
-                    if Number - (row * grid_size) < grid_size:
-                        self.check_neighbours(Number + 1 + grid_size)
+                if row < grid_size_y:
+                    if Number - (row * grid_size_x) < grid_size_x:
+                        self.check_neighbours(Number + 1 + grid_size_x)
 
     # Funktion - to all other hidden bombs after user clicked on a bomb - call from def change_button_state_click
     def show_hidden_bombs(self, Number, bomb_image):
-        global grid_size
-        for n in range(grid_size * grid_size):
+        global grid_size_x
+        global grid_size_y
+        for n in range(grid_size_x * grid_size_y):
             if define_kind_of_field[n] == -1 and Number != n:
                 self.game_button[n]["bg"]="white"
                 self.game_button[n]["fg"]="red"
@@ -262,12 +272,13 @@ class Application(tk.Frame, Program_Code): # Extend class Program_Code
 
     # Funktion - check for user marked all bombs - call from def change_button_state_mark
     def check_for_all_bombs_marked(self):
-        global  mines_no
-        global grid_size
+        global mines_no
+        global grid_size_x
+        global grid_size_y
         global define_kind_of_field
         global game_state
         count = 0
-        for n in range(grid_size * grid_size):
+        for n in range(grid_size_x * grid_size_y):
             self.button_text = self.game_button[n]["text"]
             if self.button_text == "X" and define_kind_of_field[n] == -1:
                 count = count + 1
@@ -298,17 +309,20 @@ class Application_Show(Application):
     def __init__(self):
         root = tk.Tk()
         root.title("Minesweeper")
-        root.geometry('400x550')
+        Geometry = str((grid_size_x * 25) + 15) + "x" + str((grid_size_y * 25) + 145)
+        root.geometry(Geometry)
         root.resizable(width=0, height=0)
         app = Application(master=root)
         app.mainloop()
 
     # Funktion - called from another python to send parameter
-    def parameter(number_of_mines, size_of_grid, folder_of_images):
+    def parameter(number_of_mines, size_of_grid_x, size_of_grid_y, folder_of_images):
         global mines_no
-        global grid_size
+        global grid_size_x
+        global grid_size_y
         global image_folder
-        mines_no = number_of_mines
-        grid_size = size_of_grid
+        mines_no     = number_of_mines
+        grid_size_x  = size_of_grid_x
+        grid_size_y  = size_of_grid_y
         image_folder = folder_of_images
 
