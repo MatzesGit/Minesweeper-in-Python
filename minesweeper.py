@@ -1,6 +1,6 @@
 import os, sys # init lib - used to call all other - don't change
 # #################################################################
-# Minesweeper Game - v0.1 - python 3.9.5
+# Minesweeper Game - v0.11 - python 3.9.5
 #
 # 2021 by Mathias Stritzke
 # #################################################################
@@ -37,7 +37,7 @@ image_folder = (path + "\images")
 # #################################################################
 try:
     # set game parameter
-    mines_no = 15
+    mines_no = 30
     grid_size_x = 20 # colums
     grid_size_y = 20 # rows
 

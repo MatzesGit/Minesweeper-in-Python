@@ -14,11 +14,23 @@ Start the program with the minesweeper.py
 
 all imports will be done inside the Plugin folder - plugin.py please check the ability for the Python libaries
 
+
+
+--Version History--
 ******************************************************************************************************************
 Version 0.1 
 ******************************************************************************************************************
 
 The game is fully playable but only one size field is currenly available to use.
 If you want to change the number of mines, your can do this inside minesweeper.py - mines_no
+
+******************************************************************************************************************
+Version 0.11 
+******************************************************************************************************************
+
+Now the game fully sizeable by using "grid_size_x = 20 # colums and grid_size_y = 20 # rows" inside minesweeper.py
+
+
+
 
 next steps -  will be adding a menu for changing parameters
