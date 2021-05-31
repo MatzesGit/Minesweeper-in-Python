@@ -37,10 +37,11 @@ image_folder = (path + "\images")
 # #################################################################
 try:
     # set game parameter
-    mines_no = 25
-    grid_size = 15 # number x number
+    mines_no = 15
+    grid_size_x = 20 # colums
+    grid_size_y = 20 # rows
 
-    Application_Show.parameter(mines_no, grid_size, image_folder)
+    Application_Show.parameter(mines_no, grid_size_x, grid_size_y, image_folder)
     Application_Show()
 except Exception as ex:
     print(str(ex))
