@@ -262,7 +262,7 @@ class Application(tk.Frame, Program_Code): # Extend class Program_Code
     def show_hidden_bombs(self, Number, bomb_image):
         global grid_size_x
         global grid_size_y
-        for n in range(grid_size_x * grid_size_y):
+        for n in range((grid_size_x * grid_size_y) + 1):
             if define_kind_of_field[n] == -1 and Number != n:
                 self.game_button[n]["bg"]="white"
                 self.game_button[n]["fg"]="red"
