@@ -38,7 +38,7 @@ image_folder = (path + "\images")
 try:
     # set game parameter
     mines_no = 30
-    grid_size_x = 20 # colums
+    grid_size_x = 19 # colums
     grid_size_y = 20 # rows
 
     Application_Show.parameter(mines_no, grid_size_x, grid_size_y, image_folder)

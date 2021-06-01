@@ -86,6 +86,7 @@ class Application(tk.Frame, Program_Code): # Extend class Program_Code
         self.frame = tk.Frame(self)
         self.frame.config(width = ((grid_size_x * 25) + 15), height = ((grid_size_y * 25) + 145))
         self.frame.pack(padx=0, pady=5, side="left")
+        self.frame["bg"] = "#b47d49"
 
     # Frame - Area with mines
     def game_area(self):
@@ -94,7 +95,7 @@ class Application(tk.Frame, Program_Code): # Extend class Program_Code
         self.subframe = tk.Frame(self)
         self.subframe.config(width = ((grid_size_x * 25) + 5), height = ((grid_size_y * 25) + 7))
         self.subframe.place(x=5, y=55)
-        self.subframe["bg"] = "#808880"
+        self.subframe["bg"] = "#b47d49"
 
     # Button - New Game button
     def button_new(self):
@@ -120,14 +121,15 @@ class Application(tk.Frame, Program_Code): # Extend class Program_Code
         global number
         global define_kind_of_field
         global game_state
+        start_position_x = 8 # left start point for game button in x
+        start_position_y = 58 # left start point for game button in y
         Number = 1
         Program_Code.create_mines()
         Program_Code.check_neighbours()
         self.game_button =  [tk.Button(self) for n in range((grid_size_x * grid_size_y) + grid_size_y)]
-        for y in range(58, 58 + (grid_size_y * 25), 25):
-            for x in range (8, 8 + (grid_size_x * 25), 25):
+        for y in range(start_position_y, start_position_y + (grid_size_y * 25), 25):
+            for x in range (start_position_x, start_position_x + (grid_size_x * 25), 25):                   
                 self.game_button[Number] = tk.Button(self)
-                self.game_button[Number]["bg"]="#c7cbcb"
                 self.game_button[Number]["fg"]="#c7cbcb"
                 self.game_button[Number].bind("<Button-1>", lambda event, Number = Number: self.change_button_state_click(event, Number, bomb_image, bomb_image_exploded))
                 self.game_button[Number].bind("<Button-3>", lambda event, Number = Number: self.change_button_state_mark(event, Number))
@@ -136,6 +138,7 @@ class Application(tk.Frame, Program_Code): # Extend class Program_Code
                 self.game_button[Number].config(width = 2, height = 1)
                 self.game_button[Number].place(x = x, y = y)
                 Number = Number + 1
+        self.set_game_button_color()
 
     # Label - simple information label above the game frame 
     # - call from def check_for_all_bombs_marked and def change_button_state_click
@@ -146,6 +149,31 @@ class Application(tk.Frame, Program_Code): # Extend class Program_Code
         self.label.config(anchor="center")
         self.label.place(x = (((grid_size_x / 2) * 25) -150), y = 13, width = 300, height = 30) 
         self.label["text"] = str(text)
+        self.label["bg"] = "#b47d49"
+
+    # Funktion - Set game button color
+    def set_game_button_color(self):
+        global grid_size_x
+        global grid_size_y
+        Number = 1
+        color_toggle = 0
+        for y in range(1, grid_size_y + 1, 1):
+            for x in range(1, grid_size_x + 1, 1):
+            # check for grid_size_x is even or uneven
+                if x == 1:
+                    num = int(grid_size_x)
+                    if (num % 2) == 0 and color_toggle == 1:
+                        color_toggle = 0
+                    elif (num % 2) == 0 and color_toggle == 0:
+                        color_toggle = 1
+                            
+                if color_toggle == 0:
+                    self.game_button[Number]["bg"]="#caff70"
+                    color_toggle = 1
+                else:
+                    self.game_button[Number]["bg"]="#7cfc00"
+                    color_toggle = 0
+                Number = Number + 1
 
     # Funktion - New Game - call from def button_new
     def create_new(self):
@@ -160,6 +188,7 @@ class Application(tk.Frame, Program_Code): # Extend class Program_Code
             self.game_button[n]["relief"]="raised"
             self.game_button[n]["image"] = ""
             self.game_button[n].config(width = 2, height = 1)
+        self.set_game_button_color()
                 
         Program_Code.create_mines()
         Program_Code.check_neighbours()
@@ -308,6 +337,7 @@ class Application_Show(Application):
     # Funktion - self init - calls class Application
     def __init__(self):
         root = tk.Tk()
+        root.iconbitmap(str(image_folder) + "\Bomb.ico") 
         root.title("Minesweeper")
         Geometry = str((grid_size_x * 25) + 15) + "x" + str((grid_size_y * 25) + 145)
         root.geometry(Geometry)
