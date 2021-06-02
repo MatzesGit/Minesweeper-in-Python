@@ -11,8 +11,11 @@ game_state = 0 # 1 = lost
 define_kind_of_field = [0 for i in range(1000)] # Array max 1000 entrys predefined 
 # -1 = bomb,  + 1, + 2, + 3 -> neighbour fields of mines
 image_folder = ""
+config_file = ""
 covererd_fields = 0
 hidden_mines = 0
+variable = ""
+level = 0
 # #################################################################
 # Class - Program Code 
 # #################################################################
@@ -136,12 +139,53 @@ class Application(tk.Frame, Program_Code): # Extend class Program_Code
                 Number = Number + 1
         self.set_game_button_color()
 
+    def option_menu_levels(self, level):
+        # Option list for pull down menu
+        OptionList = [
+            "Level1",
+            "Level2",
+            "Level3",
+        ]
+        global variable            
+        variable = tk.StringVar(self)
+        variable.set(OptionList[level])
+        level_option = tk.OptionMenu(self, variable, *OptionList)
+        level_option["bg"] = "white"
+        level_option["fg"] = "black"
+        level_option.config(font=("Helvetica", 9, "bold"))
+        level_option.config(width = 5, height = 1)
+        level_option.config(anchor="ne")
+        level_option.place(x = 10, y = 15)
+        variable.trace('w', self.option_menu_clicked)
+
+    # Option Menu for changing levels
+    def option_menu_clicked(self, name, index, mode):
+        # read from file
+        config_game_modi = ConfigParser()
+        config_game_modi.read(config_file)
+
+        # get the section
+        start_level = config_game_modi["start_level"]
+
+        # update the level
+        start_level["level"] = ("{}".format(variable.get()))
+
+        # write changes back to file
+        with open(config_file, 'w') as conf:
+            config_game_modi.write(conf)
+
+        # restart minesweeper
+        os.startfile("minesweeper.py")
+
+        # close the old application
+        self.master.destroy()
+
     # Label - Head design - with Shovel image
     def head_design(self, shovel_image):
         self.label_lower = tk.Label(self)
         self.label_lower.config(font=("Helvetica", 1, "bold"))
         self.label_lower.config(width = str((grid_size_x * 25) + 15), height = 45)
-        self.label_lower.config(anchor="ne")
+        self.label_lower.config(anchor="nw")
         self.label_lower.place(x = 0, y = 5)
         self.label_lower["text"] = "text"
         self.label_lower["bg"] = "#7cfc00"
@@ -150,7 +194,7 @@ class Application(tk.Frame, Program_Code): # Extend class Program_Code
         self.label_image["image"] = shovel_image
         self.label_image["bg"] = "#2e9afe"
         self.label_image["fg"] = "#2e9afe"
-        self.label_image.bind("<Button-1>", lambda: self.head_design_image(shovel_image))
+        self.label_image.bind("<Button-1>", lambda event: self.head_design_image(event, shovel_image))
         self.label_image.config(font=("Helvetica", 9, "bold"))
         self.label_image.config(width = str((grid_size_x * 25) + 15), height = 80)
         self.label_image.config(anchor="ne")
@@ -169,7 +213,7 @@ class Application(tk.Frame, Program_Code): # Extend class Program_Code
             self.label_fields.config(font=("Helvetica", 12, "bold"))
             self.label_fields.config(width = 5, height = 1)
             self.label_fields.config(anchor="nw")
-            self.label_fields.place(x = 10, y = 20)
+            self.label_fields.place(x = 10, y = 55)
             covererd_fields = (grid_size_x * grid_size_y)
         elif count_direction == "+" or count_direction == "-":
             covererd_fields = covererd_fields - 1
@@ -191,7 +235,7 @@ class Application(tk.Frame, Program_Code): # Extend class Program_Code
             self.label_bombs.config(font=("Helvetica", 12, "bold"))
             self.label_bombs.config(width = 5, height = 1)
             self.label_bombs.config(anchor="nw")
-            self.label_bombs.place(x = 10, y = 50)
+            self.label_bombs.place(x = 80, y = 55)
         elif count_direction == "+" or count_direction == "-":
             if count_direction == "-":
                 hidden_mines = hidden_mines - 1
@@ -205,15 +249,18 @@ class Application(tk.Frame, Program_Code): # Extend class Program_Code
     # Label - simple information label above the game frame 
     # - call from def check_for_all_bombs_marked and def change_button_state_click
     def information_text(self, text):
-        self.label = tk.Label(self)
-        self.label.config(font=("Helvetica", 16, "bold"))
-        self.label.config(anchor="center")
-        self.label.place(x = (((grid_size_x / 2) * 25) -100), y = 35, width = 200, height = 30) 
-        self.label["text"] = str(text)
-        self.label["bg"] = "#2e9afe"
+        if text == "":
+            self.label.destroy()
+        else:
+            self.label = tk.Label(self)
+            self.label.config(font=("Helvetica", 16, "bold"))
+            self.label.config(anchor="center")
+            self.label.place(x = (((grid_size_x / 2) * 25) - 93), y = (((grid_size_y / 2) * 25) + 97), width = 200, height = 30) 
+            self.label["text"] = str(text)
+            self.label["bg"] = "#2e9afe"
 
     # Function to show image - for a reason I don't know tkinter needs an event to show images
-    def head_design_image(self, shovel_image):
+    def head_design_image(self, event, shovel_image):
         pass
 
     # Funktion - Set game button color
@@ -388,7 +435,6 @@ class Application(tk.Frame, Program_Code): # Extend class Program_Code
     # Funktion - self init - start all necessary funktions
     def __init__(self, master=None):
         global image_folder
-        
         super().__init__(master)
 
         # define game images
@@ -399,6 +445,7 @@ class Application(tk.Frame, Program_Code): # Extend class Program_Code
         self.pack()
         self.control_area()
         self.head_design(shovel_image)
+        self.option_menu_levels(level)
         self.covered_fields("=")
         self.number_unmarked_bombs("=")
         self.button_new()
@@ -424,13 +471,17 @@ class Application_Show(Application):
         app.mainloop()
 
     # Funktion - called from another python to send parameter
-    def parameter(number_of_mines, size_of_grid_x, size_of_grid_y, folder_of_images):
+    def parameter(number_of_mines, size_of_grid_x, size_of_grid_y, folder_of_images, file_of_config, start_level):
         global mines_no
         global grid_size_x
         global grid_size_y
         global image_folder
+        global config_file
+        global level
         mines_no     = number_of_mines
         grid_size_x  = size_of_grid_x
         grid_size_y  = size_of_grid_y
         image_folder = folder_of_images
+        config_file = file_of_config
+        level = start_level - 1
 
