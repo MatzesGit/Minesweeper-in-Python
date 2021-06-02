@@ -10,7 +10,9 @@ grid_size_y = 0
 game_state = 0 # 1 = lost
 define_kind_of_field = [0 for i in range(1000)] # Array max 1000 entrys predefined 
 # -1 = bomb,  + 1, + 2, + 3 -> neighbour fields of mines
-
+image_folder = ""
+covererd_fields = 0
+hidden_mines = 0
 # #################################################################
 # Class - Program Code 
 # #################################################################
@@ -84,18 +86,9 @@ class Application(tk.Frame, Program_Code): # Extend class Program_Code
     # Frame inside the Application - for better positioning
     def control_area(self):
         self.frame = tk.Frame(self)
-        self.frame.config(width = ((grid_size_x * 25) + 15), height = ((grid_size_y * 25) + 145))
+        self.frame.config(width = ((grid_size_x * 25) + 15), height = ((grid_size_y * 25) + 185))
         self.frame.pack(padx=0, pady=5, side="left")
         self.frame["bg"] = "#b47d49"
-
-    # Frame - Area with mines
-    def game_area(self):
-        global grid_size_x
-        global grid_size_y
-        self.subframe = tk.Frame(self)
-        self.subframe.config(width = ((grid_size_x * 25) + 5), height = ((grid_size_y * 25) + 7))
-        self.subframe.place(x=5, y=55)
-        self.subframe["bg"] = "#b47d49"
 
     # Button - New Game button
     def button_new(self):
@@ -103,53 +96,125 @@ class Application(tk.Frame, Program_Code): # Extend class Program_Code
         self.new_game["bg"]= "#c7cbcb"
         self.new_game["fg"]="black"
         self.new_game["text"] = "NEW GAME"
-        self.new_game.config(width = 10, height = 2)
-        self.new_game.place(x = (((grid_size_x * 25) / 2) - 80), y = ((grid_size_y * 25) + 70)) 
         self.new_game["command"] = self.create_new
+        self.new_game.config(font=("Helvetica", 9, "bold"))
+        self.new_game.config(width = 10, height = 2)
+        self.new_game.place(x = (((grid_size_x * 25) / 2) - 80), y = ((grid_size_y * 25) + 130)) 
 
     # Button - Game close button
     def button_close(self):
-        self.quit = tk.Button(self, text="QUIT", bg="#c7cbcb", fg="red",
-                              command=self.master.destroy)
+        self.quit = tk.Button(self)
+        self.quit["bg"]= "#c7cbcb"
+        self.quit["fg"]="red"
+        self.quit["text"] = "QUIT"
+        self.quit["command"] = self.master.destroy
+        self.quit.config(font=("Helvetica", 9, "bold"))                     
         self.quit.config(width = 10, height = 2)                     
-        self.quit.place(x = (((grid_size_x * 25) / 2) + 10), y = ((grid_size_y * 25) + 70))
+        self.quit.place(x = (((grid_size_x * 25) / 2) + 10), y = ((grid_size_y * 25) + 130))
 
     # Button - Create Play Buttons according to class Program_Code
     def mine_fields(self, bomb_image, bomb_image_exploded):
         global grid_size_x
         global grid_size_y
-        global number
         global define_kind_of_field
         global game_state
         start_position_x = 8 # left start point for game button in x
-        start_position_y = 58 # left start point for game button in y
+        start_position_y = 112 # left start point for game button in y
         Number = 1
         Program_Code.create_mines()
         Program_Code.check_neighbours()
-        self.game_button =  [tk.Button(self) for n in range((grid_size_x * grid_size_y) + grid_size_y)]
+        self.game_button =  [tk.Button(self) for n in range((grid_size_x + 1) * (grid_size_y + 1))]
         for y in range(start_position_y, start_position_y + (grid_size_y * 25), 25):
             for x in range (start_position_x, start_position_x + (grid_size_x * 25), 25):                   
                 self.game_button[Number] = tk.Button(self)
-                self.game_button[Number]["fg"]="#c7cbcb"
+                self.game_button[Number]["fg"] = "#c7cbcb"
                 self.game_button[Number].bind("<Button-1>", lambda event, Number = Number: self.change_button_state_click(event, Number, bomb_image, bomb_image_exploded))
                 self.game_button[Number].bind("<Button-3>", lambda event, Number = Number: self.change_button_state_mark(event, Number))
-                #self.game_button[Number]["command"] = lambda Number = Number: self.change_button_state(Number)
                 self.game_button[Number].config(font=("Helvetica", 9, "bold"))
                 self.game_button[Number].config(width = 2, height = 1)
                 self.game_button[Number].place(x = x, y = y)
                 Number = Number + 1
         self.set_game_button_color()
 
+    # Label - Head design - with Shovel image
+    def head_design(self, shovel_image):
+        self.label_lower = tk.Label(self)
+        self.label_lower.config(font=("Helvetica", 1, "bold"))
+        self.label_lower.config(width = str((grid_size_x * 25) + 15), height = 45)
+        self.label_lower.config(anchor="ne")
+        self.label_lower.place(x = 0, y = 5)
+        self.label_lower["text"] = "text"
+        self.label_lower["bg"] = "#7cfc00"
+
+        self.label_image = tk.Label(self)
+        self.label_image["image"] = shovel_image
+        self.label_image["bg"] = "#2e9afe"
+        self.label_image["fg"] = "#2e9afe"
+        self.label_image.bind("<Button-1>", lambda: self.head_design_image(shovel_image))
+        self.label_image.config(font=("Helvetica", 9, "bold"))
+        self.label_image.config(width = str((grid_size_x * 25) + 15), height = 80)
+        self.label_image.config(anchor="ne")
+        self.label_image.place(x = 0, y = 5)
+
+    # Label - Show number of covered fields
+    def covered_fields(self, count_direction):
+        global covererd_fields
+        if count_direction == "=":
+            covererd_fields = (grid_size_x * grid_size_y)
+            self.label_fields = tk.Label(self)
+            self.label_fields["borderwidth"] = 1
+            self.label_fields["text"] = str(covererd_fields)
+            self.label_fields["bg"] = "white"
+            self.label_fields["fg"] = "black"
+            self.label_fields.config(font=("Helvetica", 12, "bold"))
+            self.label_fields.config(width = 5, height = 1)
+            self.label_fields.config(anchor="nw")
+            self.label_fields.place(x = 10, y = 20)
+            covererd_fields = (grid_size_x * grid_size_y)
+        elif count_direction == "+" or count_direction == "-":
+            covererd_fields = covererd_fields - 1
+            self.label_fields["text"] = str(covererd_fields) 
+        else:
+            covererd_fields = (grid_size_x * grid_size_y)
+            self.label_fields["text"] = str(covererd_fields)
+
+    # Label - Show number of unmarked bombs
+    def number_unmarked_bombs(self, count_direction):
+        global hidden_mines
+        if count_direction == "=":
+            hidden_mines = mines_no
+            self.label_bombs = tk.Label(self)
+            self.label_bombs["borderwidth"] = 1
+            self.label_bombs["text"] = str(hidden_mines)
+            self.label_bombs["bg"] = "white"
+            self.label_bombs["fg"] = "black"
+            self.label_bombs.config(font=("Helvetica", 12, "bold"))
+            self.label_bombs.config(width = 5, height = 1)
+            self.label_bombs.config(anchor="nw")
+            self.label_bombs.place(x = 10, y = 50)
+        elif count_direction == "+" or count_direction == "-":
+            if count_direction == "-":
+                hidden_mines = hidden_mines - 1
+            elif count_direction == "+":
+                hidden_mines = hidden_mines + 1
+            self.label_bombs["text"] = str(hidden_mines) 
+        else:
+            hidden_mines = mines_no
+            self.label_bombs["text"] = str(hidden_mines)       
+
     # Label - simple information label above the game frame 
     # - call from def check_for_all_bombs_marked and def change_button_state_click
     def information_text(self, text):
-        global grid_size_x
         self.label = tk.Label(self)
-        self.label.config(font=("Arial", 15))
+        self.label.config(font=("Helvetica", 16, "bold"))
         self.label.config(anchor="center")
-        self.label.place(x = (((grid_size_x / 2) * 25) -150), y = 13, width = 300, height = 30) 
+        self.label.place(x = (((grid_size_x / 2) * 25) -100), y = 35, width = 200, height = 30) 
         self.label["text"] = str(text)
-        self.label["bg"] = "#b47d49"
+        self.label["bg"] = "#2e9afe"
+
+    # Function to show image - for a reason I don't know tkinter needs an event to show images
+    def head_design_image(self, shovel_image):
+        pass
 
     # Funktion - Set game button color
     def set_game_button_color(self):
@@ -193,6 +258,8 @@ class Application(tk.Frame, Program_Code): # Extend class Program_Code
         Program_Code.create_mines()
         Program_Code.check_neighbours()
         game_state = 0
+        self.covered_fields(" ")
+        self.number_unmarked_bombs(" ")
 
     # Funktion - Change Play Buttons after left mouse click - call from def mine_fields
     def change_button_state_click(self, event, Number, bomb_image, bomb_image_exploded):
@@ -222,9 +289,11 @@ class Application(tk.Frame, Program_Code): # Extend class Program_Code
             if self.button_text == "X":
                 self.game_button[Number]["fg"]="#c7cbcb"
                 self.game_button[Number]["text"]=""
+                self.number_unmarked_bombs("+")
             else:
                 self.game_button[Number]["fg"]="red"
                 self.game_button[Number]["text"]="X"
+                self.number_unmarked_bombs("-")
                 self.check_for_all_bombs_marked()
 
     # Funktion - Set Play Buttons to relief ="sunken" - call from def change_button_state_click
@@ -249,6 +318,7 @@ class Application(tk.Frame, Program_Code): # Extend class Program_Code
             self.game_button[Number]["text"]= str(define_kind_of_field[Number])
             self.game_button[Number]["relief"]="sunken"
             self.game_button[Number]["command"] = lambda Number = Number: self.change_button_state(Number)
+            self.covered_fields("-")
             if define_kind_of_field[Number] == 0 and Number <= (grid_size_x * grid_size_y):
                 # recall this funktion self in all diections from the current field
 
@@ -317,16 +387,22 @@ class Application(tk.Frame, Program_Code): # Extend class Program_Code
 
     # Funktion - self init - start all necessary funktions
     def __init__(self, master=None):
+        global image_folder
+        
         super().__init__(master)
+
+        # define game images
+        bomb_image = ImageTk.PhotoImage(Image.open(str(image_folder) + "\Bomb.png").resize((19, 19), Image.ANTIALIAS))
+        bomb_image_exploded = ImageTk.PhotoImage(Image.open(str(image_folder) + "\Bomb_Exploded.png").resize((19, 19), Image.ANTIALIAS))
+        shovel_image = ImageTk.PhotoImage(Image.open(str(image_folder) + "\Shovel.png").resize((171, 95), Image.ANTIALIAS))
         self.master = master
         self.pack()
         self.control_area()
+        self.head_design(shovel_image)
+        self.covered_fields("=")
+        self.number_unmarked_bombs("=")
         self.button_new()
         self.button_close()
-        self.game_area()
-        bomb_image = ImageTk.PhotoImage(Image.open(str(image_folder) + "\Bomb.png").resize((19, 19), Image.ANTIALIAS))
-        bomb_image_exploded = ImageTk.PhotoImage(Image.open(str(image_folder) + "\Bomb_Exploded.png").resize((19, 19), Image.ANTIALIAS))
-        #bomb_image.convert("RGBA")
         self.mine_fields(bomb_image, bomb_image_exploded)
 
 # #################################################################
@@ -336,10 +412,12 @@ class Application(tk.Frame, Program_Code): # Extend class Program_Code
 class Application_Show(Application):
     # Funktion - self init - calls class Application
     def __init__(self):
+        global image_folder
+
         root = tk.Tk()
         root.iconbitmap(str(image_folder) + "\Bomb.ico") 
         root.title("Minesweeper")
-        Geometry = str((grid_size_x * 25) + 15) + "x" + str((grid_size_y * 25) + 145)
+        Geometry = str((grid_size_x * 25) + 15) + "x" + str((grid_size_y * 25) + 185)
         root.geometry(Geometry)
         root.resizable(width=0, height=0)
         app = Application(master=root)
