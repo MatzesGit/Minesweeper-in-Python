@@ -1,6 +1,6 @@
 import os, sys # init lib - used to call all other - don't change
 # #################################################################
-# Minesweeper Game - v0.11 - python 3.9.5
+# Minesweeper Game - v1.0 - python 3.9.5
 #
 # 2021 by Mathias Stritzke
 # #################################################################
